@@ -1,0 +1,32 @@
+*****
+select count(nbExperience), sum(budget)
+from DCategorie c, FRecherche r
+where c.idc = r.idc
+AND c.idc = "Antixidant";
+
+
+EcoulÚ : 00 :00 :00.32   --- without indexation
+EcoulÚ : 00 :00 :00.01	 --- with a normal view
+EcoulÚ : 00 :00 :00.05   --- with a materialized view
+*****
+create bitmap index indexcat
+ON FRecherche(Dcategorie.description)
+from FRecherche, Dcategorie
+where FRecherche.idC = Dcategorie.idc;
+
+****
+alter system flush shared_pool;
+alter system flush buffer_cache;
+
+****
+create materialized view vue1 (idc, idR, nbExp, budget)
+Enable query rewrite
+as select dc.idc, F.idR, nbExperience, budget
+from frecherche F, dcategorie dc, dregion dr
+where f.idc = dc.idC
+and f.idr = dr.idr;
+
+****
+select * from frecherche;
+
+select * from vue1;
